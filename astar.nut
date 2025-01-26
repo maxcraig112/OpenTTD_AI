@@ -143,7 +143,7 @@ class AStar{
                     //cameFrom, and add scores to traverse for particular node
                     cameFrom[neighbour] <- current;
                     gScore[neighbour.location] <- tempGScore;
-                    fScore[neighbour] <- tempGScore + AStar.Heuristic(current, goal);
+                    fScore[neighbour] <- tempGScore + 2 * AStar.Heuristic(current, goal);
 
                     //add the new neighbour to the list of open nodes to check with it's associated score
                     openNodes.push(fScore[neighbour], neighbour);
