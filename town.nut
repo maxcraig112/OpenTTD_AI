@@ -16,7 +16,7 @@ class Towns {
     }
 
     function Get2LargestTowns(){
-        return [this.towns[AIBase.RandRange(this.towns.len())], this.towns[AIBase.RandRange(this.towns.len())]];
+        // return [this.towns[AIBase.RandRange(this.towns.len())], this.towns[AIBase.RandRange(this.towns.len())]];
         local largest = null;
         local secondLargest = null;
 

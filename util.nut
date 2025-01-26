@@ -18,6 +18,10 @@ class Location{
         this.x = AIMap.GetTileX(this.tile);
         this.y = AIMap.GetTileY(this.tile);
     }
+
+    function AddVector(x, y){
+        return Location(AIMap.GetTileIndex(this.x + x, this.y + y));
+    }
 }
 
 enum Direction {
@@ -95,4 +99,13 @@ class DirectionUtil{
         return "ERROR";
     }
 
+    static function RelativeDirection(dir1, dir2) {
+        if (dir1 + 1 == dir2 || (dir1 == Direction.NW && dir2 == Direction.N)) {
+            return RelativeDirection.R
+        }
+        if (dir1 == dir2 + 1 || (dir1 == Direction.N && dir2 == Direction.NW)) {
+            return RelativeDirection.L
+        }
+        return null
+    }
 }
