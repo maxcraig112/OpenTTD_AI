@@ -177,6 +177,10 @@ class AStar{
                 }
                 //get the tile object
                 local newTile = AIMap.GetTileIndex(tileX + x, tileY + y);
+                //ignore sea tiles
+                if (AITile.IsSeaTile(newTile)) {
+                    continue;
+                }
                 //TODO additional checks for water, roads, etc...
                 if (!AIMap.IsValidTile(newTile)){
                     continue;
