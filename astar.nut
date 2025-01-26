@@ -12,17 +12,25 @@ enum Direction {
     NW = 7
 }
 
+enum RelativeDirection {
+    L = 0,
+    R = 1,
+    S = 2
+}
+
 //Every tile is represented as a node that contains information relating to it's location,
 //the direction that it was facing when it was connected to the previous node
 //And the length of the longest length of track
 class Node{
     location = null;
     direction = null;
+    lastTurnDirection = null;
     length = null;
 
-    constructor(location, direction, length) {
+    constructor(location, direction, lastTurnDirection, length) {
         this.location = location
         this.direction = direction
+        this.lastTurnDirection = lastTurnDirection
         this.length = length
     }
 }
@@ -68,8 +76,8 @@ class AStar{
             AILog.Info("Goal: " + goal);
         }
 
-        local start = Node(start, null, 0);
-        local goal = Node(goal, null, 0);
+        local start = Node(start, null, null, 0);
+        local goal = Node(goal, null, null, 0);
 
         local openNodes = HeapQueue();
 
@@ -143,7 +151,7 @@ class AStar{
                     //cameFrom, and add scores to traverse for particular node
                     cameFrom[neighbour] <- current;
                     gScore[neighbour.location] <- tempGScore;
-                    fScore[neighbour] <- tempGScore + 3 * AStar.WackyHeuristic(current, goal);
+                    fScore[neighbour] <- tempGScore + 3.5 * AStar.WackyHeuristic(current, goal);
 
                     //add the new neighbour to the list of open nodes to check with it's associated score
                     openNodes.push(fScore[neighbour], neighbour);
@@ -210,7 +218,7 @@ class AStar{
                 //get the tile object
                 local newTile = AIMap.GetTileIndex(tileX + x, tileY + y);
                 //ignore sea tiles
-                if (AITile.IsSeaTile(newTile)) {
+                if (AITile.IsSeaTile(newTile) || AITile.IsCoastTile(newTile)) {
                     continue;
                 }
                 //TODO additional checks for water, roads, etc...
@@ -223,7 +231,7 @@ class AStar{
                 //if it's the starting node we shouldn't care
                 if (node.direction == null){
                     // AILog.Info("NULL DIRECTION");
-                    neighbours.append(Node(newTile, newDirection, node.length + 1));
+                    neighbours.append(Node(newTile, newDirection, null, node.length + 1));
                 }
                 //A neighbour is only valid if it either
                 //- in the same direction that the lastTile was already travelling in
@@ -232,12 +240,17 @@ class AStar{
                 //in the same direction
                 else if (node.direction ==  newDirection){
                     // AILog.Info("SAME DIRECTION");
-                    neighbours.append(Node(newTile, newDirection, node.length + 1));
+                    neighbours.append(Node(newTile, newDirection, node.lastTurnDirection, node.length + 1));
+                }
+
+                //s-shaped turn
+                else if (AStarUtil.RelativeDirection(node.direction, newDirection) != node.lastTurnDirection && node.lastTurnDirection != RelativeDirection.S) {
+                    neighbours.append(Node(newTile, newDirection, RelativeDirection.S, 0));
                 }
 
                 else if (node.length >= AStar.TRAIN_LENGTH && AStarUtil.AreAdjacent(node.direction, newDirection)){
                     // AILog.Info("LONG ENOUGH");
-                    neighbours.append(Node(newTile, newDirection, 0));
+                    neighbours.append(Node(newTile, newDirection, AStarUtil.RelativeDirection(node.direction, newDirection), 0));
                 }
             }
         }
@@ -262,6 +275,17 @@ class AStarUtil{
         adjacentPairs[Direction.NW] <- [Direction.N, Direction.W];
 
         return Util.Contains(adjacentPairs[dir1], dir2);
+    }
+
+    // Returns relative direction of a turn from dir1 to dir2
+    static function RelativeDirection(dir1, dir2) {
+        if (dir1 + 1 == dir2 || (dir1 == Direction.NW && dir2 == Direction.N)) {
+            return RelativeDirection.R
+        }
+        if (dir1 == dir2 + 1 || (dir1 == Direction.N && dir2 == Direction.NW)) {
+            return RelativeDirection.L
+        }
+        return null
     }
 
     //This can be used in later code to ensure that it ends on a straight so that it can connect
