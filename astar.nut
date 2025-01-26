@@ -193,16 +193,16 @@ class AStar{
         } else if (xDiff == 0 && yDiff == -1) {
             // Down
             return Direction.S;
-        } else if (xDiff == 1 && yDiff == 1) {
+        } else if (xDiff == 1 && yDiff == -1) {
             // Up-Right
             return Direction.NE;
-        } else if (xDiff == -1 && yDiff == 1) {
+        } else if (xDiff == -1 && yDiff == -1) {
             // Up-Left
             return Direction.NW;
-        } else if (xDiff == 1 && yDiff == -1) {
+        } else if (xDiff == 1 && yDiff == 1) {
             // Down-Right
             return Direction.SE;
-        } else if (xDiff == -1 && yDiff == -1) {
+        } else if (xDiff == -1 && yDiff == 1) {
             // Down-Left
             return Direction.SW;
         }
