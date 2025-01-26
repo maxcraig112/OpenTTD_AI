@@ -11,10 +11,14 @@ enum Direction {
     NW
 }
 
+//Every tile is represented as a node that contains information relating to it's location,
+//the direction that it was facing when it was connected to the previous node
+//And the length of the longest length of track
 class Node{
     location = null;
     direction = null;
     length = null;
+
     constructor(location, direction, length) {
         this.location = location
         this.direction = direction
@@ -24,32 +28,33 @@ class Node{
 
 
 class AStar{
-
     TRAIN_LENGTH = 4
-
-    static
-    function AStar(start, goal,  debug) {
+    static function AStar(start, goal, debug) {
         local allSigns = []
         if (debug){
             AILog.Info("Start: " + start);
             AILog.Info("Goal: " + goal);
         }
+
         local start = Node(start, null, 0);
         local goal = Node(goal, null, 0);
 
         local openNodes = HeapQueue();
+
         openNodes.push(0, start);
-        // openNodes.test();
 
         local cameFrom = {};
 
         cameFrom[start] <- "NULL";
-
+        //gscore is the cost to traverse from the start node to the given node
         local gScore = {};
         gScore[start.location] <- 0;
 
+        //fscore is the approximate heuristic cost to travel from a given node
         local fScore = {};
         fScore[start] <- AStar.Heuristic(start, goal);
+
+        //debugging purposes
         local i = -1;
         while (openNodes.len() > 0){
             i += 1;
@@ -60,7 +65,8 @@ class AStar{
             if (debug){
                 AILog.Info("Current: " + current);
             }
-            //you need to have both reached the goal location but also have to end going straight for train station to work
+
+            //if the current location is the goal you've found a shortest path
             if (current.location ==  goal.location){
                 local path = [];
                 while (current in cameFrom && current.direction != "NULL") {
@@ -76,20 +82,23 @@ class AStar{
                 }
                 return path;
             }
+
             local neighbours = AStar.GetNeighbours(current);
             if (debug){
                 AILog.Info("# of Neighbours: " + neighbours.len());
             }
+
             foreach (neighbour in neighbours){
-                // if (debug){
-                //     AILog.Info("Neighbour: " + neighbour);
-                // }
-                local cost = AStar.CostToTraverseTo(current, neighbour);
-                local tempGScore = gScore[current.location] + cost;
+
+                local tempGScore = gScore[current.location] + AStar.CostToTraverseTo(current, neighbour);
+                //if we haven't seen the neighbour before, or the score to traverse
+                //is less than what we have previously scene
                 if (!(neighbour.location in gScore) || tempGScore < gScore[neighbour.location]) {
                     if (debug){
                         AILog.Info("Neighbour to add: " + neighbour);
                     }
+                    //expand to that node, add the reference to where we came from in
+                    //cameFrom, and add scores to traverse for particular node
                     cameFrom[neighbour] <- current;
                     gScore[neighbour.location] <- tempGScore;
                     fScore[neighbour] <- tempGScore + AStar.Heuristic(current, goal);
@@ -116,21 +125,21 @@ class AStar{
         local tileY = AIMap.GetTileY(node.location);
 
         local neighbours = []
+        //This will get all neighbours within a 3x3 radius of the current tile
         for (local x = -1; x < 2; x +=  1){
             for (local y = -1; y < 2; y += 1){
+                //ignore the current tile
                 if (abs(x) + abs(y) ==  0){
                     continue;
                 }
+                //get the tile object
                 local newTile = AIMap.GetTileIndex(tileX + x, tileY + y);
-                // AILog.Info(node);
-                // AILog.Info(newTile);
+
                 local newDirection = AStar.GetPositionOfAdjacentTile(node.location, newTile)
-                //if it's not a valid tile we should skip
-                if (!AIMap.IsValidTile(newTile) && !AITile.IsWaterTile(newTile)){
+                //TODO additional checks for water, roads, etc...
+                if (!AIMap.IsValidTile(newTile)){
                     continue;
                 }
-                neighbours.append(Node(newTile, newDirection, node.length + 1));
-                continue;
 
                 //if it's the starting node we shouldn't care
                 if (node.direction == null){
