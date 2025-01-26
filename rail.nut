@@ -37,7 +37,7 @@ function ConnectTwoLargestTowns(towns) {
 }
 
 function FindLocationToPlaceStation(town){
-
+    local stationRadius = 5
 }
 
 
