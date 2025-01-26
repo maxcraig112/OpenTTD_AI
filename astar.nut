@@ -47,7 +47,8 @@ class AStar{
             }
         }
     }
-    static function AStar(start, goal, debug) {
+    static
+    function AStar(start, goal, debugConsole,  showPathfinding) {
 
         local adjacentPairs = {}
         adjacentPairs[Direction.NE] <- [Direction.N, Direction.E];
@@ -62,7 +63,7 @@ class AStar{
         AILog.Info(Direction.NE in adjacentPairs[Direction.NE]);
         local allSigns = []
 
-        if (debug){
+        if (debugConsole){
             AILog.Info("Start: " + start);
             AILog.Info("Goal: " + goal);
         }
@@ -86,10 +87,19 @@ class AStar{
         fScore[start] <- AStar.Heuristic(start, goal);
 
         //debugging purposes
+        local i = -1;
+        local allSigns = []
         while (openNodes.len() > 0){
+
             local current = openNodes.pop()[1];
 
-            if (debug){
+            if (showPathfinding){
+                i += 1;
+                local text = (i.tostring());
+                allSigns.append(AISign.BuildSign(current.location, text));
+            }
+
+            if (debugConsole){
                 AILog.Info("Current: " + current);
             }
 
@@ -108,11 +118,15 @@ class AStar{
                 //We have to reverse the path as it begins from the destination
                 path.reverse();
 
+                //remove all debugging signs if there are any
+                foreach(sign in allSigns){
+                    AISign.RemoveSign(sign);
+                }
                 return path;
             }
 
             local neighbours = AStar.GetNeighbours(current);
-            if (debug){
+            if (debugConsole){
                 AILog.Info("# of Neighbours: " + neighbours.len());
             }
 
@@ -122,7 +136,7 @@ class AStar{
                 //if we haven't seen the neighbour before, or the score to traverse
                 //is less than what we have previously scene
                 if (!(neighbour.location in gScore) || tempGScore < gScore[neighbour.location]) {
-                    if (debug){
+                    if (debugConsole){
                         AILog.Info("Neighbour to add: " + neighbour);
                     }
                     //expand to that node, add the reference to where we came from in

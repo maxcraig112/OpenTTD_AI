@@ -12,7 +12,7 @@ function ConnectTwoLargestTowns(towns) {
     // local text = "HERE";
     // AISign.BuildSign(AIMap.GetTileIndex(1, 1), text);
     // AStar.Test(2794);
-    local path = AStar.AStar(t1.location, t2.location,  false);
+    local path = AStar.AStar(t1.location, t2.location, false,  true);
 
     local i = 0;
     foreach(tile in path) {
