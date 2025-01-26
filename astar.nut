@@ -1,16 +1,7 @@
 require("heapqueue.nut");
 require("util.nut");
+require("constants.nut")
 
-enum Direction {
-    N = 0,
-    NE = 1,
-    E = 2,
-    SE = 3,
-    S = 4,
-    SW = 5,
-    W = 6,
-    NW = 7
-}
 
 enum RelativeDirection {
     L = 0,
@@ -35,10 +26,6 @@ class Node{
     }
 }
 
-
-class AStar{
-
-    TRAIN_LENGTH = 4
     static function Test(start){
         local tileX = AIMap.GetTileX(start);
         local tileY = AIMap.GetTileY(start);
@@ -55,20 +42,7 @@ class AStar{
             }
         }
     }
-    static
-    function AStar(start, goal, debugConsole,  showPathfinding) {
-
-        local adjacentPairs = {}
-        adjacentPairs[Direction.NE] <- [Direction.N, Direction.E];
-        local x =  adjacentPairs[Direction.NE]
-
-        foreach(y in x){
-            AILog.Info(y);
-        }
-        AILog.Info(Direction.NE)
-        AILog.Info("THIS VALUE SHOULD BE FALSE " + (1 in [1, 3]))
-
-        AILog.Info(Direction.NE in adjacentPairs[Direction.NE]);
+    static function AStar(start, goal, debugConsole,  showPathfinding) {
         local allSigns = []
 
         if (debugConsole){
@@ -113,7 +87,7 @@ class AStar{
 
             //if the current location is the goal you've found a shortest path
             //as well, should
-            if (current.location == goal.location) {// && AstarUtil.IsStraightDirection(current.direction)){
+            if (current.location == goal.location) {// && DirectionUtil.IsStraightDirection(current.direction)){
                 local path = [];
                 while (current in cameFrom && current.direction != null) {
                     path.append(current.location);
@@ -225,7 +199,7 @@ class AStar{
                 if (!AIMap.IsValidTile(newTile)){
                     continue;
                 }
-                local newDirection = AStarUtil.GetPositionOfAdjacentTile(node.location, newTile)
+                local newDirection = DirectionUtil.GetPositionOfAdjacentTile(node.location, newTile)
 
 
                 //if it's the starting node we shouldn't care
@@ -248,7 +222,7 @@ class AStar{
                     neighbours.append(Node(newTile, newDirection, RelativeDirection.S, 0));
                 }
 
-                else if (node.length >= AStar.TRAIN_LENGTH && AStarUtil.AreAdjacent(node.direction, newDirection)){
+                else if (node.length >= CONSTANTS.TRAIN_LENGTH && DirectionUtil.AreAdjacent(node.direction, newDirection)){
                     // AILog.Info("LONG ENOUGH");
                     neighbours.append(Node(newTile, newDirection, AStarUtil.RelativeDirection(node.direction, newDirection), 0));
                 }
