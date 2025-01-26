@@ -50,9 +50,9 @@ class AStar{
 
         local fScore = {};
         fScore[start] <- AStar.Heuristic(start, goal);
-        // local i = -1;
+        local i = -1;
         while (openNodes.len() > 0){
-            // i += 1;
+            i += 1;
             local current = openNodes.pop()[1];
             local iText = (i.tostring());
             allSigns.append(AISign.BuildSign(current.location, iText))
