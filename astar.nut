@@ -1,14 +1,15 @@
 require("heapqueue.nut");
+require("util.nut");
 
 enum Direction {
-    N,
-    NE,
-    E,
-    SE,
-    S,
-    SW,
-    W,
-    NW
+    N = 0,
+    NE = 1,
+    E = 2,
+    SE = 3,
+    S = 4,
+    SW = 5,
+    W = 6,
+    NW = 7
 }
 
 //Every tile is represented as a node that contains information relating to it's location,
@@ -28,9 +29,39 @@ class Node{
 
 
 class AStar{
+
     TRAIN_LENGTH = 4
+    static function Test(start){
+        local tileX = AIMap.GetTileX(start);
+        local tileY = AIMap.GetTileY(start);
+
+        local neighbours = []
+        //This will get all neighbours within a 3x3 radius of the current tile
+        for (local x = -1; x < 2; x +=  1){
+            for (local y = -1; y < 2; y += 1){
+
+                local newTile = AIMap.GetTileIndex(tileX + x, tileY + y);
+
+                local text = x + " " + y
+                AISign.BuildSign(newTile, text);
+            }
+        }
+    }
     static function AStar(start, goal, debug) {
+
+        local adjacentPairs = {}
+        adjacentPairs[Direction.NE] <- [Direction.N, Direction.E];
+        local x =  adjacentPairs[Direction.NE]
+
+        foreach(y in x){
+            AILog.Info(y);
+        }
+        AILog.Info(Direction.NE)
+        AILog.Info("THIS VALUE SHOULD BE FALSE " + (1 in [1, 3]))
+
+        AILog.Info(Direction.NE in adjacentPairs[Direction.NE]);
         local allSigns = []
+
         if (debug){
             AILog.Info("Start: " + start);
             AILog.Info("Goal: " + goal);
@@ -55,20 +86,16 @@ class AStar{
         fScore[start] <- AStar.Heuristic(start, goal);
 
         //debugging purposes
-        local i = -1;
         while (openNodes.len() > 0){
-            i += 1;
             local current = openNodes.pop()[1];
-
-            local iText = (i.tostring());
-            allSigns.append(AISign.BuildSign(current.location, iText))
 
             if (debug){
                 AILog.Info("Current: " + current);
             }
 
             //if the current location is the goal you've found a shortest path
-            if (current.location ==  goal.location){
+            //as well, should
+            if (current.location == goal.location) {// && AstarUtil.IsStraightDirection(current.direction)){
                 local path = [];
                 while (current in cameFrom && current.direction != null) {
                     path.append(current.location);
@@ -81,10 +108,6 @@ class AStar{
                 //We have to reverse the path as it begins from the destination
                 path.reverse();
 
-                //remove all signs
-                foreach(sign in allSigns){
-                    AISign.RemoveSign(sign);
-                }
                 return path;
             }
 
@@ -119,7 +142,21 @@ class AStar{
     }
 
     static function Heuristic(current,  goal){
-        return AIMap.DistanceManhattan(current.location, goal.location);
+        local currentX = AIMap.GetTileX(current.location);
+        local currentY = AIMap.GetTileY(current.location);
+
+        local goalX = AIMap.GetTileX(goal.location);
+        local goalY = AIMap.GetTileY(goal.location);
+
+        local diffX = goalX - currentX
+        local diffY = goalY - currentY
+
+        if(diffX < diffY){
+            return AIMap.DistanceManhattan(current.location, AIMap.GetTileIndex(goalX, currentY)) + AIMap.DistanceManhattan(AIMap.GetTileIndex(goalX, currentY), goal.location)
+        }
+        else{
+            return AIMap.DistanceManhattan(current.location, AIMap.GetTileIndex(currentX, goalY)) + AIMap.DistanceManhattan(AIMap.GetTileIndex(currentX, goalY), goal.location)
+        }
     }
 
     static function CostToTraverseTo(current, goal){
@@ -140,12 +177,12 @@ class AStar{
                 }
                 //get the tile object
                 local newTile = AIMap.GetTileIndex(tileX + x, tileY + y);
-
-                local newDirection = AStar.GetPositionOfAdjacentTile(node.location, newTile)
                 //TODO additional checks for water, roads, etc...
                 if (!AIMap.IsValidTile(newTile)){
                     continue;
                 }
+                local newDirection = AStarUtil.GetPositionOfAdjacentTile(node.location, newTile)
+
 
                 //if it's the starting node we shouldn't care
                 if (node.direction == null){
@@ -162,7 +199,7 @@ class AStar{
                     neighbours.append(Node(newTile, newDirection, node.length + 1));
                 }
 
-                else if (node.length >= AStar.TRAIN_LENGTH && AStar.AreAdjacent(node.direction, newDirection)){
+                else if (node.length >= AStar.TRAIN_LENGTH && AStarUtil.AreAdjacent(node.direction, newDirection)){
                     // AILog.Info("LONG ENOUGH");
                     neighbours.append(Node(newTile, newDirection, 0));
                 }
@@ -171,45 +208,10 @@ class AStar{
         return neighbours;
     }
 
-    static function GetPositionOfAdjacentTile(current, neighbour){
-        local currentX = AIMap.GetTileX(current);
-        local currentY = AIMap.GetTileY(current);
 
-        local neighbourX = AIMap.GetTileX(neighbour);
-        local neighbourY = AIMap.GetTileY(neighbour);
+}
 
-        local xDiff = currentX - neighbourX;
-        local yDiff = currentY - neighbourY;
-
-        if (xDiff == 1 && yDiff == 0) {
-            // Right
-            return Direction.E;
-        } else if (xDiff == -1 && yDiff == 0) {
-            // Left
-            return Direction.W;
-        } else if (xDiff == 0 && yDiff == 1) {
-            // Up
-            return Direction.N;
-        } else if (xDiff == 0 && yDiff == -1) {
-            // Down
-            return Direction.S;
-        } else if (xDiff == 1 && yDiff == -1) {
-            // Up-Right
-            return Direction.NE;
-        } else if (xDiff == -1 && yDiff == -1) {
-            // Up-Left
-            return Direction.NW;
-        } else if (xDiff == 1 && yDiff == 1) {
-            // Down-Right
-            return Direction.SE;
-        } else if (xDiff == -1 && yDiff == 1) {
-            // Down-Left
-            return Direction.SW;
-        }
-        AILog.Error("GetPositionOfAdjacentTile is broken");
-        return "ERROR";
-    }
-
+class AStarUtil{
     //This function is used to make sure the trains are able to successfully traverse along the rail
     //They can't make 90 degree turns
     static function AreAdjacent(dir1, dir2) {
@@ -223,13 +225,53 @@ class AStar{
         adjacentPairs[Direction.W] <- [Direction.SW, Direction.NW];
         adjacentPairs[Direction.NW] <- [Direction.N, Direction.W];
 
-        return dir2 in adjacentPairs[dir1];
+        return Util.Contains(adjacentPairs[dir1], dir2);
     }
 
     //This can be used in later code to ensure that it ends on a straight so that it can connect
     //To the train station easier
     static function IsStraightDirection(dir){
-        return dir in [Direction.N, Direction.E, Direction.S, Direction.W];
+        return Util.Contains([Direction.NE, Direction.SE, Direction.SW, Direction.NW], dir);
     }
-}
 
+
+    static function GetPositionOfAdjacentTile(current, neighbour){
+        local currentX = AIMap.GetTileX(current);
+        local currentY = AIMap.GetTileY(current);
+
+        local neighbourX = AIMap.GetTileX(neighbour);
+        local neighbourY = AIMap.GetTileY(neighbour);
+
+        local xDiff = neighbourX - currentX;
+        local yDiff = neighbourY - currentY;
+
+        if (xDiff == -1 && yDiff == 1) {
+            // Right
+            return Direction.E;
+        } else if (xDiff == 1 && yDiff == -1) {
+            // Left
+            return Direction.W;
+        } else if (xDiff == -1 && yDiff == -1) {
+            // Up
+            return Direction.N;
+        } else if (xDiff == 1 && yDiff == 1) {
+            // Down
+            return Direction.S;
+        } else if (xDiff == -1 && yDiff == 0) {
+            // Up-Right
+            return Direction.NE;
+        } else if (xDiff == 0 && yDiff == -1) {
+            // Up-Left
+            return Direction.NW;
+        } else if (xDiff == 0 && yDiff == 1) {
+            // Down-Right
+            return Direction.SE;
+        } else if (xDiff == 1 && yDiff == 0) {
+            // Down-Left
+            return Direction.SW;
+        }
+        AILog.Error("GetPositionOfAdjacentTile is broken");
+        return "ERROR";
+    }
+
+}
