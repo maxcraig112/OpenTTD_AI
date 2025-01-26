@@ -45,7 +45,7 @@ class AStar{
 
         local cameFrom = {};
 
-        cameFrom[start] <- "NULL";
+        cameFrom[start] <- null;
         //gscore is the cost to traverse from the start node to the given node
         local gScore = {};
         gScore[start.location] <- 0;
@@ -59,6 +59,7 @@ class AStar{
         while (openNodes.len() > 0){
             i += 1;
             local current = openNodes.pop()[1];
+
             local iText = (i.tostring());
             allSigns.append(AISign.BuildSign(current.location, iText))
 
@@ -69,14 +70,18 @@ class AStar{
             //if the current location is the goal you've found a shortest path
             if (current.location ==  goal.location){
                 local path = [];
-                while (current in cameFrom && current.direction != "NULL") {
+                while (current in cameFrom && current.direction != null) {
                     path.append(current.location);
                     current = cameFrom[current];
                 }
                 path.append(start.location);
+
                 AILog.Info("Path Length " + path.len());
+
+                //We have to reverse the path as it begins from the destination
                 path.reverse();
 
+                //remove all signs
                 foreach(sign in allSigns){
                     AISign.RemoveSign(sign);
                 }
@@ -103,6 +108,7 @@ class AStar{
                     gScore[neighbour.location] <- tempGScore;
                     fScore[neighbour] <- tempGScore + AStar.Heuristic(current, goal);
 
+                    //add the new neighbour to the list of open nodes to check with it's associated score
                     openNodes.push(fScore[neighbour], neighbour);
                 }
             }
@@ -204,6 +210,8 @@ class AStar{
         return "ERROR";
     }
 
+    //This function is used to make sure the trains are able to successfully traverse along the rail
+    //They can't make 90 degree turns
     static function AreAdjacent(dir1, dir2) {
         local adjacentPairs = {}
         adjacentPairs[Direction.N] <- [Direction.NE, Direction.NW];
@@ -218,6 +226,8 @@ class AStar{
         return dir2 in adjacentPairs[dir1];
     }
 
+    //This can be used in later code to ensure that it ends on a straight so that it can connect
+    //To the train station easier
     static function IsStraightDirection(dir){
         return dir in [Direction.N, Direction.E, Direction.S, Direction.W];
     }

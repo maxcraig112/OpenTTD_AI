@@ -1,11 +1,7 @@
 //The entire purpose of this file is to try
 //and get information regarding towns
 
-// #include <script_town.hpp>
-require("util.nut");
-
 class Towns {
-
     townCount = null;
     towns = null;
 
@@ -15,7 +11,6 @@ class Towns {
 
         for (local i = 0; i < townCount; i += 1){
             local newTown = Town(i);
-            // newTown.GetTownInfo();
             towns.append(newTown);
         }
     }
@@ -32,7 +27,6 @@ class Towns {
                 secondLargest = town;
             }
         }
-
         return [largest, secondLargest];
     }
 }
@@ -55,8 +49,6 @@ class Town {
     }
 
     function GetTownInfo(){
-        local info = "Name: " + this.name + " Index: " + this.townIndex;
-        info += " Population: " + this.population + " Location: " + this.location;
-        AILog.Info(info);
+        AILog.Info("Name: " + this.name + " Index: " + this.townIndex + " Population: " + this.population + " Location: " + this.location);
     }
 }
