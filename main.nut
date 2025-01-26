@@ -24,7 +24,7 @@ class TestAI extends AIController
 
    //Keep running. If Start() exits, the AI dies.
    while (true) {
-      ConnectTwoLargestTowns(towns);
+      GenerateTrainLine(towns, true);
       this.Sleep(100);
       AILog.Warning("TODO: Add functionality to the AI.");
    }
@@ -54,6 +54,6 @@ class TestAI extends AIController
      }
    }
    AICompany.SetPresidentName("P. Resident");
- }
+  }
 
 

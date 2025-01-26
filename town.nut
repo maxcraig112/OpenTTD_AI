@@ -37,6 +37,8 @@ class Town {
     name = null;
     population = null;
     location = null;
+    x = null
+    y = null
 
     constructor(i)
     {
@@ -46,7 +48,9 @@ class Town {
         this.index = i;
         this.name = AITown.GetName(i);
         this.population = AITown.GetPopulation(i);
-        this.location = AITown.GetLocation(i);
+        this.location = Location(AITown.GetLocation(i));
+        this.x = this.location.x;
+        this.y = this.location.y;
     }
 
     function GetTownInfo(){
