@@ -33,23 +33,27 @@ class Towns {
 }
 
 class Town {
-    townIndex = null;
+    index = null;
     name = null;
     population = null;
     location = null;
+    x = null
+    y = null
 
     constructor(i)
     {
         if(!AITown.IsValidTown(i)){
-            AILog.Error("Town with townIndex " + i + " is not valid");
+            AILog.Error("Town with index " + i + " is not valid");
         }
-        this.townIndex = i;
+        this.index = i;
         this.name = AITown.GetName(i);
         this.population = AITown.GetPopulation(i);
-        this.location = AITown.GetLocation(i);
+        this.location = Location(AITown.GetLocation(i));
+        this.x = this.location.x;
+        this.y = this.location.y;
     }
 
     function GetTownInfo(){
-        AILog.Info("Name: " + this.name + " Index: " + this.townIndex + " Population: " + this.population + " Location: " + this.location);
+        AILog.Info("Name: " + this.name + " Index: " + this.index + " Population: " + this.population + " Location: " + this.location);
     }
 }
