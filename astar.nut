@@ -84,7 +84,7 @@ class AStar{
 
         //fscore is the approximate heuristic cost to travel from a given node
         local fScore = {};
-        fScore[start] <- AStar.Heuristic(start, goal);
+        fScore[start] <- AStar.WackyHeuristic(start, goal);
 
         //debugging purposes
         local i = -1;
@@ -143,7 +143,7 @@ class AStar{
                     //cameFrom, and add scores to traverse for particular node
                     cameFrom[neighbour] <- current;
                     gScore[neighbour.location] <- tempGScore;
-                    fScore[neighbour] <- tempGScore + 2 * AStar.Heuristic(current, goal);
+                    fScore[neighbour] <- tempGScore + 3 * AStar.WackyHeuristic(current, goal);
 
                     //add the new neighbour to the list of open nodes to check with it's associated score
                     openNodes.push(fScore[neighbour], neighbour);
@@ -170,6 +170,24 @@ class AStar{
         }
         else{
             return AIMap.DistanceManhattan(current.location, AIMap.GetTileIndex(currentX, goalY)) + AIMap.DistanceManhattan(AIMap.GetTileIndex(currentX, goalY), goal.location)
+        }
+    }
+
+    static function WackyHeuristic(current,  goal){
+        local currentX = AIMap.GetTileX(current.location);
+        local currentY = AIMap.GetTileY(current.location);
+
+        local goalX = AIMap.GetTileX(goal.location);
+        local goalY = AIMap.GetTileY(goal.location);
+
+        local diffX = abs(goalX - currentX)
+        local diffY = abs(goalY - currentY)
+
+        if(diffX < diffY){
+            return diffY
+        }
+        else{
+            return diffX
         }
     }
 
