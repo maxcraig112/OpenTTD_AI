@@ -25,7 +25,7 @@ class TestAI extends AIController
    //Keep running. If Start() exits, the AI dies.
    while (true) {
       ConnectTwoLargestTowns(towns);
-      this.Sleep(100000);
+      this.Sleep(100);
       AILog.Warning("TODO: Add functionality to the AI.");
    }
  }
