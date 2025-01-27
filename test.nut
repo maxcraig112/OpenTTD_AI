@@ -23,8 +23,8 @@ class Station{
 
 function GenerateTrainLine(towns, debug) {
     local twoLargestTowns = towns.Get2LargestTowns();
-    local t1 = twoLargestTowns[1];
-    local t2 = twoLargestTowns[0];
+    local t1 = twoLargestTowns[0];
+    local t2 = twoLargestTowns[1];
 
     //Print information about towns
     AILog.Info("Attempting to generate train station for the following town...");
@@ -40,7 +40,7 @@ function GenerateTrainLine(towns, debug) {
     AILog.Info("Station Direction: " + t2StationDirection + " Starting Location: " + t2Start)
 
     AILog.Info("Generating Path between stations...")
-    local path = AStar.AStar(t1Start.tile, t2Start.tile, t1StationDirection, t2StationDirection,  debug, debug);
+    local path = AStar.AStar(t1Start.tile, t2Start.tile, t1StationDirection, t2StationDirection,  false, true);
 
     local i = 0;
     foreach(tile in path) {
@@ -172,19 +172,15 @@ function PlaceStationForTown(town, direction, debug) {
 
                 //check that the point where the station is being added is a tile within the town
                 //Check that from the clearway, there is a buildable section of the desired length
-                // local test = []
-                // test.append(AISign.BuildSign(stationLocation.tile, "station"))
-                // test.append(AISign.BuildSign(clearwayLocation.tile, "clearway"))
-
                 if (direction == Direction.SE){
-                    stationLocation = stationLocation.AddVector(Vector(0, 1 * (CONSTANTS.TRAIN_PLATFORM_LENGTH)))
+                    stationLocation = stationLocation.AddVector(Vector(0,-1 * (CONSTANTS.TRAIN_PLATFORM_LENGTH)))
                     clearwayLocation = clearwayLocation.AddVector(Vector(0,1 * (CONSTANTS.TRAIN_PLATFORM_LENGTH + CONSTANTS.TRAIN_PLATFORM_CLEARANCE)))
                 }
                 else if (direction == Direction.SW){
-                    stationLocation = stationLocation.AddVector(Vector(1 * (CONSTANTS.TRAIN_PLATFORM_LENGTH), 0))
-                    clearwayLocation = clearwayLocation.AddVector(Vector(1 * (CONSTANTS.TRAIN_PLATFORM_LENGTH + CONSTANTS.TRAIN_PLATFORM_CLEARANCE), 0))
+                    stationLocation = stationLocation.AddVector(Vector(-1 * (CONSTANTS.TRAIN_PLATFORM_LENGTH),0))
+                    clearwayLocation = clearwayLocation.AddVector(Vector(1 * (CONSTANTS.TRAIN_PLATFORM_LENGTH + CONSTANTS.TRAIN_PLATFORM_CLEARANCE),0))
                 }
-                if (AITown.IsWithinTownInfluence(town.index, stationLocation.tile) && AITile.IsBuildableRectangle(stationLocation.tile, desiredFullSize.x, desiredFullSize.y)) {
+                if (AITown.IsWithinTownInfluence(town.index, stationLocation.tile) && AITile.IsBuildableRectangle(clearwayLocation.tile, desiredFullSize.x, desiredFullSize.y)) {
                     //Not that we know where is a buildable location, we need to verify that at the very least the area where the station
                     //is being built is flat
                     local isFlatSurface = true
@@ -194,7 +190,7 @@ function PlaceStationForTown(town, direction, debug) {
                             local tile = AIMap.GetTileIndex(stationLocation.x + x, stationLocation.y + y);
                             local string = x + " " + y;
 
-                            // flatSigns.append(AISign.BuildSign(tile, string));
+                            flatSigns.append(AISign.BuildSign(tile, string));
                             if(AITile.GetSlope(tile) != AITile.SLOPE_FLAT && AITile.IsBuildable(tile)){
                                 isFlatSurface = false
                                 break;
@@ -204,9 +200,9 @@ function PlaceStationForTown(town, direction, debug) {
                             break
                         }
                     }
-                    // foreach(sign in flatSigns){
-                    //     AISign.RemoveSign(sign);
-                    // }
+                    foreach(sign in flatSigns){
+                        AISign.RemoveSign(sign);
+                    }
                     if(isFlatSurface){
                         foundValidPosition = true;
                         break;
@@ -216,7 +212,6 @@ function PlaceStationForTown(town, direction, debug) {
                 // foreach(t in test){
                 //     AISign.RemoveSign(t);
                 // }
-
             }
             if(foundValidPosition){
                 break;

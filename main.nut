@@ -24,7 +24,7 @@ class TestAI extends AIController
 
    //Keep running. If Start() exits, the AI dies.
    while (true) {
-      GenerateTrainLine(towns, true);
+      GenerateTrainLine(towns, false);
       this.Sleep(100);
       AILog.Warning("TODO: Add functionality to the AI.");
    }

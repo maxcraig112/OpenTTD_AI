@@ -28,6 +28,7 @@ class Node{
 
 class AStar{
     static function Test(start){
+
         local tileX = AIMap.GetTileX(start);
         local tileY = AIMap.GetTileY(start);
 
@@ -43,7 +44,7 @@ class AStar{
             }
         }
     }
-    static function AStar(start, goal, debugConsole,  showPathfinding) {
+    static function AStar(start, goal, startingDirection, endingDirection, debugConsole,  showPathfinding) {
         local allSigns = []
 
         if (debugConsole){
@@ -51,8 +52,8 @@ class AStar{
             AILog.Info("Goal: " + goal);
         }
 
-        local start = Node(start, null, null, 0);
-        local goal = Node(goal, null, null, 0);
+        local start = Node(start, startingDirection, CONSTANTS.TRAIN_PLATFORM_CLEARANCE, 0);
+        local goal = Node(goal, endingDirection, null, 0);
 
         local openNodes = HeapQueue();
 
@@ -88,7 +89,7 @@ class AStar{
 
             //if the current location is the goal you've found a shortest path
             //as well, should
-            if (current.location == goal.location) {// && DirectionUtil.IsStraightDirection(current.direction)){
+            if (current.location == goal.location) {//  && goal.direction == DirectionUtil.GetComplimentDirection(current.direction)
                 local path = [];
                 while (current in cameFrom && current.direction != null) {
                     path.append(current.location);

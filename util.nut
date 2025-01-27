@@ -19,8 +19,15 @@ class Location {
         this.y = AIMap.GetTileY(this.tile);
     }
 
-    function AddVector(x, y) {
-        return Location(AIMap.GetTileIndex(this.x + x, this.y + y));
+    // constructor(x,y) {
+    //     this.x = x;
+    //     this.y = y;
+    //     this.tile = AIMap.GetTileIndex(this.x, this.y);
+
+    // }
+
+    function AddVector(vector) {
+        return Location(AIMap.GetTileIndex(this.x + vector.x, this.y + vector.y));
     }
 }
 
@@ -35,6 +42,14 @@ enum Direction {
     NW = 7
 }
 
+class Vector{
+    x = null;
+    y = null;
+    constructor(x,y){
+        this.x = x;
+        this.y = y;
+    }
+}
 
 class DirectionUtil{
 
@@ -107,5 +122,36 @@ class DirectionUtil{
             return RelativeDirection.L
         }
         return null
+    }
+
+    static function GetComplimentDirection(dir){
+        if(dir == Direction.N){
+            return Direction.S
+        }
+        else if(dir == Direction.NE){
+            return Direction.SW
+        }
+        else if(dir == Direction.E){
+            return Direction.W
+        }
+        else if(dir == Direction.SE){
+            return Direction.NW
+        }
+        else if(dir == Direction.S){
+            return direction.N
+        }
+        else if(dir == Direction.SW){
+            return direction.NE
+        }
+        else if(dir == Direction.W){
+            return Direction.E
+        }
+        else if(dir == Direction.NW){
+            return Direction.SE
+        }
+        else{
+            AILog.Error("ERROR WITH GET COMPLIMENT DIRECTION")
+            return "ERROR"
+        }
     }
 }
