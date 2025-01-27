@@ -182,6 +182,33 @@ class AStar{
         local tileX = AIMap.GetTileX(node.location);
         local tileY = AIMap.GetTileY(node.location);
 
+        local checkTable = {}
+        // Add valid terrain check for diagonal to straight corners
+        checkTable[[Direction.E, Direction.NE]] <- [[1, 0]];
+        checkTable[[Direction.N, Direction.NE]] <- [[1, 0]];
+        checkTable[[Direction.E, Direction.SE]] <- [[0, -1]];
+        checkTable[[Direction.S, Direction.SE]] <- [[0, -1]];
+        checkTable[[Direction.W, Direction.NW]] <- [[0, 1]];
+        checkTable[[Direction.N, Direction.NW]] <- [[0, 1]];
+        checkTable[[Direction.S, Direction.SW]] <- [[-1, 0]];
+        checkTable[[Direction.W, Direction.SW]] <- [[-1, 0]];
+
+        // Add valid terrain check for diagonal to diagonal corners
+        checkTable[[Direction.E, Direction.E]] <- [[0, -1], [1, 0]];
+        checkTable[[Direction.N, Direction.N]] <- [[1, 0], [0, 1]];
+        checkTable[[Direction.W, Direction.W]] <- [[-1, 0], [0, 1]];
+        checkTable[[Direction.S, Direction.S]] <- [[0, -1], [-1, 0]];
+
+        // Add valid terrain check for straight to diagonal corners
+        checkTable[[Direction.NE, Direction.E]] <- [[0, -1]];
+        checkTable[[Direction.SE, Direction.E]] <- [[1, 0]];
+        checkTable[[Direction.NW, Direction.N]] <- [[1, 0]];
+        checkTable[[Direction.NE, Direction.N]] <- [[0, 1]];
+        checkTable[[Direction.SW, Direction.W]] <- [[0, 1]];
+        checkTable[[Direction.NW, Direction.W]] <- [[-1, 0]];
+        checkTable[[Direction.SE, Direction.S]] <- [[-1, 0]];
+        checkTable[[Direction.SW, Direction.S]] <- [[0, -1]];
+
         local neighbours = []
         //This will get all neighbours within a 3x3 radius of the current tile
         for (local x = -1; x < 2; x +=  1){
@@ -210,7 +237,7 @@ class AStar{
                 //- is changing directions by at most one degree, and it's current length is equal to the minimum length we want
 
                 //in the same direction
-                else if (node.direction ==  newDirection){
+                else if (node.direction == newDirection){
                     neighbours.append(Node(newTile, newDirection, node.lastTurnDirection, node.length + 1));
                 }
 
@@ -228,7 +255,7 @@ class AStar{
     }
 
     static function IsValidRailTile(tile, oldTile){
-        if (AITile.IsSeaTile(tile) || AITile.IsCoastTile(tile)) {
+        if (AITile.IsSeaTile(tile) || AITile.IsCoastTile(tile) || !AITile.IsBuildable(tile)) {
             return false;
         }
         //TODO additional checks for water, roads, etc...
@@ -236,10 +263,10 @@ class AStar{
             return false;
         }
 
-        //Ignore non-buildable tiles, unless it's a river, in that case it needs to be travelling straight
-        if (!(AITile.IsBuildable(tile) || (AITile.IsRiverTile(tile) && oldTile.length >= CONSTANTS.TRAIN_LENGTH && Util.Contains([Direction.NE,Direction.SE,Direction.SW,Direction.NW],oldTile.direction)))){
-            return false
-        }
+        // //Ignore non-buildable tiles, unless it's a river, in that case it needs to be travelling straight
+        // if (!(AITile.IsBuildable(tile) || (AITile.IsRiverTile(tile) && oldTile.length >= CONSTANTS.TRAIN_LENGTH && Util.Contains([Direction.NE,Direction.SE,Direction.SW,Direction.NW],oldTile.direction)))){
+        //     return false
+        // }
 
         return true
     }
