@@ -43,7 +43,7 @@ function GenerateTrainLine(towns, debug) {
     local i = 0;
     foreach(tile in path) {
         local iText = (i.tostring()); // Convert i to a string* using Text@
-        AILog.Info(AISign.BuildSign(tile, iText));
+        AISign.BuildSign(tile, iText);
         i += 1;
     }
 
@@ -113,7 +113,6 @@ function PlaceStationForTown(town, direction, debug) {
     local startingYPosition = 1
     local endingYPosition = 1
 
-    AILog.Info(direction)
     switch (direction){
         case "North":
             desiredSizeX = CONSTANTS.TRAIN_NUMBER_PLATFORMS

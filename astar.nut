@@ -203,7 +203,6 @@ class AStar{
 
                 //if it's the starting node we shouldn't care
                 if (node.direction == null){
-                    // AILog.Info("NULL DIRECTION");
                     neighbours.append(Node(newTile, newDirection, null, node.length + 1));
                 }
                 //A neighbour is only valid if it either
@@ -212,7 +211,6 @@ class AStar{
 
                 //in the same direction
                 else if (node.direction ==  newDirection){
-                    // AILog.Info("SAME DIRECTION");
                     neighbours.append(Node(newTile, newDirection, node.lastTurnDirection, node.length + 1));
                 }
 
@@ -222,7 +220,6 @@ class AStar{
                 }
 
                 else if (node.length >= CONSTANTS.TRAIN_LENGTH && DirectionUtil.AreAdjacent(node.direction, newDirection)){
-                    // AILog.Info("LONG ENOUGH");
                     neighbours.append(Node(newTile, newDirection, DirectionUtil.RelativeDirection(node.direction, newDirection), 0));
                 }
             }
