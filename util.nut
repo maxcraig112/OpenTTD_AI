@@ -8,18 +8,18 @@ class Util{
     }
 }
 
-class Location{
+class Location {
+    tile = null;
+    x = null;
+    y = null;
 
-    tile = null
-    x = null
-    y = null
-    constructor(location){
-        this.tile = location
+    constructor(location) {
+        this.tile = location;
         this.x = AIMap.GetTileX(this.tile);
         this.y = AIMap.GetTileY(this.tile);
     }
 
-    function AddVector(x, y){
+    function AddVector(x, y) {
         return Location(AIMap.GetTileIndex(this.x + x, this.y + y));
     }
 }

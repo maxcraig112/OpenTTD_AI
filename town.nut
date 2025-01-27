@@ -1,6 +1,8 @@
 //The entire purpose of this file is to try
 //and get information regarding towns
 
+require("util.nut");
+
 class Towns {
     townCount = null;
     towns = null;
@@ -16,6 +18,7 @@ class Towns {
     }
 
     function Get2LargestTowns(){
+        return [this.towns[3], this.towns[5]];
         // return [this.towns[AIBase.RandRange(this.towns.len())], this.towns[AIBase.RandRange(this.towns.len())]];
         local largest = null;
         local secondLargest = null;
@@ -37,23 +40,24 @@ class Town {
     name = null;
     population = null;
     location = null;
-    x = null
-    y = null
+    x = null;
+    y = null;
 
-    constructor(i)
-    {
-        if(!AITown.IsValidTown(i)){
+    constructor(i) {
+        if (!AITown.IsValidTown(i)) {
             AILog.Error("Town with index " + i + " is not valid");
         }
         this.index = i;
         this.name = AITown.GetName(i);
         this.population = AITown.GetPopulation(i);
-        this.location = Location(AITown.GetLocation(i));
-        this.x = this.location.x;
-        this.y = this.location.y;
+
+        this.location = AITown.GetLocation(i);
+        this.x = AIMap.GetTileX(this.location);
+        this.y = AIMap.GetTileY(this.location);
+
     }
 
-    function GetTownInfo(){
+    function GetTownInfo() {
         AILog.Info("Name: " + this.name + " Index: " + this.index + " Population: " + this.population + " Location: " + this.location);
     }
 }
