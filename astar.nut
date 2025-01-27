@@ -192,14 +192,12 @@ class AStar{
                 }
                 //get the tile object
                 local newTile = AIMap.GetTileIndex(tileX + x, tileY + y);
-                //ignore sea tiles
-                if (AITile.IsSeaTile(newTile) || AITile.IsCoastTile(newTile)) {
-                    continue;
+
+                if (!AStar.IsValidRailTile(newTile, node)){
+                    continue
                 }
-                //TODO additional checks for water, roads, etc...
-                if (!AIMap.IsValidTile(newTile)){
-                    continue;
-                }
+
+
                 local newDirection = DirectionUtil.GetPositionOfAdjacentTile(node.location, newTile)
 
 
@@ -232,5 +230,21 @@ class AStar{
         return neighbours;
     }
 
+    static function IsValidRailTile(tile, oldTile){
+        if (AITile.IsSeaTile(tile) || AITile.IsCoastTile(tile)) {
+            return false;
+        }
+        //TODO additional checks for water, roads, etc...
+        if (!AIMap.IsValidTile(tile)){
+            return false;
+        }
+
+        //Ignore non-buildable tiles, unless it's a river, in that case it needs to be travelling straight
+        if (!(AITile.IsBuildable(tile) || (AITile.IsRiverTile(tile) && oldTile.length >= CONSTANTS.TRAIN_LENGTH && Util.Contains([Direction.NE,Direction.SE,Direction.SW,Direction.NW],oldTile.direction)))){
+            return false
+        }
+
+        return true
+    }
 
 }
